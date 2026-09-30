@@ -160,6 +160,21 @@
     animation:pulse 1.2s infinite;
   }
 
+
+  .live-entry{
+    animation: clientIn .55s ease both;
+  }
+  @keyframes clientIn{
+    from{
+      opacity:0;
+      transform:translateY(18px);
+    }
+    to{
+      opacity:1;
+      transform:translateY(0);
+    }
+  }
+
   .profit-row{
     min-height:87px;
     padding:18px 30px;
@@ -206,6 +221,17 @@
   }
   .amount .arrow{font-size:17px;margin-right:4px}
 
+  .demo-notice{
+    margin:12px auto 0;
+    max-width:620px;
+    padding:10px 14px;
+    border-radius:10px;
+    background:#fff7df;
+    border:1px solid #f0df9d;
+    color:#725b14;
+    font-size:12px;
+    line-height:1.45;
+  }
   .updated{
     color:#777;
     font-size:12px;
@@ -310,6 +336,14 @@
     </section>
 
     <div class="updated" id="lastUpdated">Last updated just now</div>
+
+    <div class="demo-notice">
+      ⚠️ <b>DEMO / SIMULATION:</b> Names and earnings shown here are automatically generated examples,
+      not verified client results.
+    </div>
+    <div style="font-size:11px;color:#888;line-height:1.45;margin:8px auto 0;max-width:520px;">
+      Demo display: names and profit figures are randomly generated and are not real client earnings.
+    </div>
   </main>
 </div>
 
@@ -320,73 +354,71 @@
 </div>
 
 <script>
-/*
-  DEMO LIVE-PROFIT WIDGET
-  ------------------------
-  The values below are sample/demo values. Replace them with your
-  real backend/API data if you have verified client transactions.
-*/
-const clients = [
-  {name:"Hetal", amount:121075},
-  {name:"Bhavesh", amount:64390},
-  {name:"Nisha", amount:153280},
-  {name:"Rahul", amount:87250},
-  {name:"Pooja", amount:45980}
+const firstNames = [
+  "Aarav","Aditi","Akash","Amit","Ananya","Anil","Anjali","Arjun","Ashish","Ayush",
+  "Bhavesh","Bharat","Chetan","Deepak","Deepika","Dhruv","Divya","Gaurav","Hetal","Himanshu",
+  "Isha","Jatin","Jignesh","Karan","Kavita","Kiran","Krishna","Manish","Meena","Mehul",
+  "Mohit","Monika","Naveen","Neha","Nikhil","Nisha","Pankaj","Pooja","Prakash","Priya",
+  "Rahul","Raj","Rakesh","Ravi","Reena","Rohit","Riya","Sachin","Sahil","Sanjay",
+  "Saurabh","Seema","Shivam","Shreya","Sneha","Sonal","Sonali","Suresh","Tanmay","Tanya",
+  "Tarun","Uday","Varun","Vikas","Vijay","Vikram","Vinay","Vishal","Yash","Yogesh",
+  "Zoya","Abhishek","Adarsh","Ajay","Alok","Amol","Aniket","Ankita","Anurag","Bhavna",
+  "Chirag","Darshan","Dinesh","Hiral","Jay","Jaya","Komal","Mahesh","Mansi","Mayank",
+  "Nandini","Nitin","Parth","Payal","Rachit","Radhika","Rajesh","Ritu","Rohan","Vaishnavi"
 ];
 
+const clients = firstNames.map((name, index) => ({
+  name,
+  amount: Math.floor(5000 + Math.random() * 195000),
+  id: index + 1
+}));
+
 const rowContainer = document.getElementById("profitRows");
+const updatedEl = document.getElementById("lastUpdated");
+
+let currentIndex = 0;
 
 function formatINR(value){
   return new Intl.NumberFormat("en-IN", {
-    maximumFractionDigits:0
+    maximumFractionDigits: 0
   }).format(Math.round(value));
 }
 
-function renderRows(){
-  rowContainer.innerHTML = clients.map((client, index) => `
-    <div class="profit-row">
+function showNextClient(){
+  const client = clients[currentIndex];
+
+  // Small profit movement each time this client is shown.
+  client.amount += Math.floor(Math.random() * 2500) + 250;
+
+  rowContainer.innerHTML = `
+    <div class="profit-row live-entry">
       <div class="person">
         <span class="avatar"></span>
         <span>${client.name}</span>
       </div>
-      <div class="amount" id="amount-${index}">
+      <div class="amount">
         <span class="arrow">▲</span> +₹${formatINR(client.amount)}
       </div>
     </div>
-  `).join("");
-}
+  `;
 
-function simulateLiveUpdate(){
-  // Demo animation: small random change every few seconds.
-  // Connect this function to your real API/WebSocket for actual data.
-  const index = Math.floor(Math.random() * clients.length);
-  const change = Math.floor(Math.random() * 1500) + 100;
-  clients[index].amount += change;
+  updatedEl.textContent = `${client.name} • Live update just now`;
 
-  const amountEl = document.getElementById(`amount-${index}`);
-  amountEl.innerHTML =
-    `<span class="arrow">▲</span> +₹${formatINR(clients[index].amount)}`;
-  amountEl.classList.remove("changed");
-  void amountEl.offsetWidth;
-  amountEl.classList.add("changed");
-
-  document.getElementById("lastUpdated").textContent =
-    "Last updated just now";
+  currentIndex = (currentIndex + 1) % clients.length;
 }
 
 function openTelegram(event){
   event.preventDefault();
-
-  // Replace with your Telegram URL, e.g.:
-  // window.location.href = "https://t.me/your_channel";
+  // Replace with your real Telegram invite URL.
   alert("Add your Telegram invite link in the HTML first.");
 }
 
-renderRows();
+// First client appears immediately.
+showNextClient();
 
-// Demo-only live animation.
-// For genuine live profits, replace with data from your own verified source.
-setInterval(simulateLiveUpdate, 4500);
+// Then one NEW client appears after another.
+// Change 3000 to 2000, 5000, etc. for a different speed.
+setInterval(showNextClient, 3000);
 </script>
 </body>
 </html>
